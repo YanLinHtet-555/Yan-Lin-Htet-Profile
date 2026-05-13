@@ -48,22 +48,16 @@
   const pointMesh = new THREE.Points(pGeo, pMat);
   scene.add(pointMesh);
 
-  /* Connection lines */
-  const LINE_DIST = 28;
-  const linePositions = [];
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    for (let j = i + 1; j < PARTICLE_COUNT; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dz = particles[i].z - particles[j].z;
-      if (Math.sqrt(dx*dx + dy*dy + dz*dz) < LINE_DIST) {
-        linePositions.push(particles[i].x, particles[i].y, particles[i].z);
-        linePositions.push(particles[j].x, particles[j].y, particles[j].z);
-      }
-    }
-  }
-  const lGeo = new THREE.BufferGeometry();
-  lGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+  /* Connection lines – pre-allocated buffer, rebuilt every frame */
+  const LINE_DIST    = 28;
+  const LINE_DIST_SQ = LINE_DIST * LINE_DIST;
+  const MAX_LINE_PAIRS = (PARTICLE_COUNT * (PARTICLE_COUNT - 1)) / 2;
+  const linePosBuf = new Float32Array(MAX_LINE_PAIRS * 6); // 2 verts × 3 floats
+  const lGeo  = new THREE.BufferGeometry();
+  const lAttr = new THREE.BufferAttribute(linePosBuf, 3);
+  lAttr.setUsage(THREE.DynamicDrawUsage);
+  lGeo.setAttribute('position', lAttr);
+  lGeo.setDrawRange(0, 0);
   const lMat = new THREE.LineBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.08 });
   scene.add(new THREE.LineSegments(lGeo, lMat));
 
@@ -117,6 +111,22 @@
       positions[i * 3 + 2] = particles[i].z;
     }
     pGeo.attributes.position.needsUpdate = true;
+
+    /* Update connection lines each frame */
+    let lp = 0;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      for (let j = i + 1; j < PARTICLE_COUNT; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dz = particles[i].z - particles[j].z;
+        if (dx*dx + dy*dy + dz*dz < LINE_DIST_SQ) {
+          linePosBuf[lp++] = particles[i].x; linePosBuf[lp++] = particles[i].y; linePosBuf[lp++] = particles[i].z;
+          linePosBuf[lp++] = particles[j].x; linePosBuf[lp++] = particles[j].y; linePosBuf[lp++] = particles[j].z;
+        }
+      }
+    }
+    lGeo.setDrawRange(0, lp / 3);
+    lAttr.needsUpdate = true;
 
     /* Float spheres */
     spheres.forEach(s => {
@@ -326,24 +336,6 @@
   });
 })();
 
-/* ── 9. Contact form (UI only) ── */
-(function initContactForm() {
-  const form = document.getElementById('contactForm');
-  if (!form) return;
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const btn = form.querySelector('button[type="submit"]');
-    btn.textContent = 'Message Sent!';
-    btn.style.background = '#22c55e';
-    btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = 'Send Message';
-      btn.style.background = '';
-      btn.disabled = false;
-      form.reset();
-    }, 3000);
-  });
-})();
 
 /* ── 10. Smooth scroll for anchor links ── */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -512,14 +504,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 })();
 
-/* ── 20. Contact form input animated underline ── */
-(function initInputLines() {
-  document.querySelectorAll('.form-group').forEach(group => {
-    const line = document.createElement('div');
-    line.className = 'input-line';
-    group.appendChild(line);
-  });
-})();
 
 /* ── 21. Skill category entrance stagger ── */
 (function initSkillStagger() {
