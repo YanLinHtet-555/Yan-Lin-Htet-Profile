@@ -560,29 +560,23 @@ strong { color: var(--cyan); font-weight: 600; }
   font-size: 11px;
   color: #b8a0ff;
 }
-.project-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 18px;
-}
-.project-footer .project-stack { margin-top: 0; }
+.project-footer { margin-top: 18px; }
 .project-github {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 3px 10px;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-dim);
+  color: var(--cyan);
   text-decoration: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 10px;
-  flex-shrink: 0;
-  transition: color var(--transition), border-color var(--transition);
+  transition: background var(--transition), border-color var(--transition);
 }
-.project-github svg { width: 13px; height: 13px; }
-.project-github:hover { color: var(--cyan); border-color: var(--cyan); }
+.project-github:hover { background: rgba(0, 212, 255, 0.2); border-color: var(--cyan); }
 
 /* ─────────────────────────────── THESIS ─── */
 .thesis-grid {
