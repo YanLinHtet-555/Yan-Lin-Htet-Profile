@@ -560,6 +560,29 @@ strong { color: var(--cyan); font-weight: 600; }
   font-size: 11px;
   color: #b8a0ff;
 }
+.project-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+.project-footer .project-stack { margin-top: 0; }
+.project-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+  transition: color var(--transition), border-color var(--transition);
+}
+.project-github svg { width: 13px; height: 13px; }
+.project-github:hover { color: var(--cyan); border-color: var(--cyan); }
 
 /* ─────────────────────────────── THESIS ─── */
 .thesis-grid {
